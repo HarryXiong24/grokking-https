@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "allowJs": true,
+    "checkJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "commonjs",
+    "moduleResolution": "Node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "exclude": ["node_modules", "dist", "dist-ssr", "public"],
+  "include": [
+    "example",
+    "src",
+    "test",
+    "temp/2.aes.ts",
+    "temp/3.rsa-theory.ts",
+    "temp/4.rsa-application.ts",
+    "temp/5.hash.ts",
+    "temp/6.md5.ts",
+    "temp/7.sign.ts",
+    "temp/8.cert.ts",
+    "temp/9.diffie-hellman.ts",
+    "temp/10.diffie-hellman-application.ts"
+  ]
+}
