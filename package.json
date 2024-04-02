@@ -82,5 +82,8 @@
       "eslint",
       "git add"
     ]
+  },
+  "dependencies": {
+    "crypto": "^1.0.1"
   }
 }
