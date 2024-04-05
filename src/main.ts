@@ -1,2 +1,3 @@
 export { symmetricEncrypt, symmetricDecrypt } from './symmetric-encryption';
-export { encrypt, decrypt } from './aes';
+export { AESEncrypt, AESDecrypt } from './aes';
+export { RSAEncrypt, RSADecrypt } from './rsa-theory';

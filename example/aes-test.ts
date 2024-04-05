@@ -1,4 +1,4 @@
-import { encrypt, decrypt } from '../src/aes';
+import { AESEncrypt, AESDecrypt } from '../src/aes';
 
 export function AESTest() {
   const message = 'abc';
@@ -7,9 +7,9 @@ export function AESTest() {
 
   console.log('original', message);
 
-  const data = encrypt(message, key, iv);
+  const data = AESEncrypt(message, key, iv);
   console.log('encrypt', data);
 
-  const decryptData = decrypt(data, key, iv);
+  const decryptData = AESDecrypt(data, key, iv);
   console.log('decrypt', decryptData);
 }
