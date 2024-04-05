@@ -4,6 +4,7 @@ import { RSATheoryTest } from './rsa-theory-test';
 import { symmetricEncryptionTest } from './symmetric-encryption-test';
 import { simpleHashTest } from './simple-hash-test';
 import { md5_sha256_Test } from './md5-sha256-test';
+import { signTest } from './sign-test';
 
 console.log('-------------------');
 console.log('symmetricEncryptionTest');
@@ -23,3 +24,6 @@ simpleHashTest();
 console.log('-------------------');
 console.log('md5Test');
 md5_sha256_Test();
+console.log('-------------------');
+console.log('signTest');
+signTest();
