@@ -2,6 +2,8 @@ import { AESTest } from './aes-test';
 import { RSAApplicationTest } from './rsa-application-test';
 import { RSATheoryTest } from './rsa-theory-test';
 import { symmetricEncryptionTest } from './symmetric-encryption-test';
+import { simpleHashTest } from './simple-hash-test';
+import { md5_sha256_Test } from './md5-sha256-test';
 
 console.log('-------------------');
 console.log('symmetricEncryptionTest');
@@ -15,3 +17,9 @@ RSATheoryTest();
 console.log('-------------------');
 console.log('RSAApplicationTest');
 RSAApplicationTest();
+console.log('-------------------');
+console.log('simpleHashTest');
+simpleHashTest();
+console.log('-------------------');
+console.log('md5Test');
+md5_sha256_Test();

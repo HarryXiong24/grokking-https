@@ -299,3 +299,85 @@ export function RSAApplicationTest() {
   console.log('publicDecrypt', decryptedMessage.toString());
 }
 ```
+
+## 5. 哈希
+
+### 哈希函数
+
+哈希函数的作用是给一个任意长度的数据生成出一个固定长度的数据
+
+- 安全性：可以从给定的数据X计算出哈希值Y，但不能从哈希值Y计算机数据X
+- 独一无二：不同的数据一定会产出不同的哈希值
+- 长度固定：不管输入多大的数据,输出长度都是固定的
+
+### 哈希碰撞
+
+- 所谓哈希(hash),就是将不同的输入映射成独一无二的、固定长度的值（又称"哈希值"）。它是最常见的软件运算之一
+- 如果不同的输入得到了同一个哈希值,就发生了哈希碰撞(collision)
+- 防止哈希碰撞的最有效方法，就是扩大哈希值的取值空间
+- 16个二进制位的哈希值，产生碰撞的可能性是 65536 分之一。也就是说，如果有65537个用户，就一定会产生碰撞。哈希值的长度扩大到32个二进制位，碰撞的可能性就会下降到 `4,294,967,296` 分之一
+
+``` ts
+console.log(Math.pow(2, 16)); // 65536
+console.log(Math.pow(2, 32)); // 42亿
+```
+
+### 哈希分类
+
+- 哈希还可以叫摘要(digest)、校验值(chunkSum)和指纹(fingerPrint)
+- 如果两段数据完全一样,就可以证明数据是一样的
+- 哈希有二种
+  - 普通哈希用来做完整性校验，流行的是MD5
+  - 加密哈希用来做加密,目前最流行的加密算法是 SHA256( Secure Hash Algorithm) 系列
+
+### hash 使用
+
+#### 简单哈希
+
+``` ts
+export function simpleHash(num: number) {
+  // padStart() 方法用另一个字符串填充当前字符串，以便产生的字符串达到给定的长度。填充从当前字符串的开始（左侧）应用。
+  return ((num % 1024) + '').padStart(4, '0');
+}
+
+console.log(simpleHash(1)); // 0001;
+console.log(simpleHash(234)); // 0234;
+console.log(simpleHash(1025)); // 0001;
+```
+
+#### MD5
+
+MD5 Message-Digest Algorithm）
+
+实现原理：数据填充 + 添加消息长度 + 分组处理
+
+1. 首先将消息以512位为一分组进行处理，分为N组
+1. 将每组消息N(i)进行4轮变换（四轮主循环），以上面所说4个常数首先赋值给a、b、c、d为起始变量进行计算，重新输出4个变量，并重新赋值给a、b、c、d四个值。
+1. 以第2步获得的新的a、b、c、d四个值，再进行下一分组的运算，如果已经是最后一个分组，则这4个变量的最后结果按照从低内存到高内存排列起来，共128位，这就是MD5算法的输出。
+
+``` ts
+const data = 'hello';
+// update(data + data) 等于 update(data).update(data)
+const md5Hash = crypto
+  .createHash('md5')
+  .update(data + data)
+  .digest('hex'); // 把结果输出成16进制的字符串
+
+// 一个md5hash值长度为32位，不是很安全
+console.log('md5Hash', md5Hash, md5Hash.length);
+```
+
+#### sha256
+
+``` ts
+const data = 'hello';
+
+// 盐值，为了更加安全，不容易预测
+const salt = '666';
+// 把结果输出成16进制的字符串
+const sha256Hash = crypto
+  .createHmac('sha256', salt)
+  .update(data)
+  .digest('hex');
+console.log('sha256Hash', sha256Hash, sha256Hash.length);
+```
