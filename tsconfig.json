@@ -32,7 +32,7 @@
     "temp/6.md5.ts",
     "temp/7.sign.ts",
     "temp/8.cert.ts",
-    "temp/9.diffie-hellman.ts",
-    "temp/10.diffie-hellman-application.ts"
+    "example/9.diffie-hellman.ts",
+    "example/10.diffie-hellman-application.ts"
   ]
 }

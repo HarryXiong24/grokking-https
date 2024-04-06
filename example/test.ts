@@ -6,6 +6,8 @@ import { simpleHashTest } from './simple-hash-test';
 import { md5_sha256_Test } from './md5-sha256-test';
 import { signTest } from './sign-test';
 import { certTest } from './cert';
+import { diffieHellmanTest } from './diffie-hellmant';
+import { diffieHellmanApplication } from './diffie-hellman-application';
 
 console.log('-------------------');
 console.log('symmetricEncryptionTest');
@@ -31,3 +33,9 @@ signTest();
 console.log('-------------------');
 console.log('certTest');
 certTest();
+console.log('-------------------');
+console.log('diffieHellman');
+diffieHellmanTest();
+console.log('-------------------');
+console.log('diffieHellmanApplication');
+diffieHellmanApplication();
