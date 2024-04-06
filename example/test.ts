@@ -5,6 +5,7 @@ import { symmetricEncryptionTest } from './symmetric-encryption-test';
 import { simpleHashTest } from './simple-hash-test';
 import { md5_sha256_Test } from './md5-sha256-test';
 import { signTest } from './sign-test';
+import { certTest } from './cert';
 
 console.log('-------------------');
 console.log('symmetricEncryptionTest');
@@ -27,3 +28,6 @@ md5_sha256_Test();
 console.log('-------------------');
 console.log('signTest');
 signTest();
+console.log('-------------------');
+console.log('certTest');
+certTest();

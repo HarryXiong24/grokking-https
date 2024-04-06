@@ -440,3 +440,155 @@ export function signTest() {
   console.log(isValid);
 }
 ```
+
+## 7. 数字证书
+
+数字证书是一个由可信的第三方发出的，用来证明所有人身份以及所有人拥有某个公钥的电子文件
+
+一个数字证书通常包含了：
+
+- 公钥；
+- 持有者信息；
+- 证书认证机构（CA）的信息；
+- CA 对这份文件的数字签名及使用的算法；
+- 证书有效期；
+- 还有一些其他额外信息；
+
+![alt text](./assets/image8.png)
+
+### 证书签发
+
+> 直接对内容进行rsa签名，性能太差，先使用摘要算法，根据内容算出一个摘要签名
+>
+> 然后再使用rsa算法对摘要签名进行签名
+
+- 首先 CA 会把持有者的公钥、用途、颁发者、有效时间等信息打成一个包，然后对这些信息进行 Hash 计算，得到一个 Hash 值；
+- 然后 CA 会使用自己的私钥将该 Hash 值加密，生成 Certificate Signature，也就是 CA 对证书做了签名；
+- 最后将 Certificate Signature 添加在文件证书上，形成数字证书；
+
+### 证书校验
+
+- 首先客户端会使用同样的 Hash 算法获取该证书的 Hash 值 H1；
+- 通常浏览器和操作系统中集成了 CA 的公钥信息，浏览器收到证书后可以使用 CA 的公钥解密 Certificate Signature 内容，得到一个 Hash 值 H2 ；
+- 最后比较 H1 和 H2，如果值相同，则为可信赖的证书，否则则认为证书不可信。
+
+### 证书链
+
+证书的验证过程中还存在一个证书信任链的问题，因为我们向 CA 申请的证书一般不是根证书签发的，而是由中间证书签发的，比如百度的证书，从下图你可以看到，证书的层级有三级：
+
+![alt text](./assets/image9.png)
+
+![alt text](./assets/image10.png)
+
+- 为什么需要证书链这么麻烦的流程？Root CA 为什么不直接颁发证书，而是要搞那么多中间层级呢？
+
+这是为了确保根证书的绝对安全性，将根证书隔离地越严格越好，不然根证书如果失守了，那么整个信任链都会有问题。
+
+为什么数字证书中，要引入第三方管理机构，不能直接端到端的数字签名？
+
+- 数字证书中引入第三方管理机构，通常是指证书颁发机构（CA，Certificate Authority），这样做主要是为了解决信任和身份验证问题。如果仅仅是端到端的数字签名，虽然可以确保消息的完整性和非抵赖性，但存在以下几个问题：
+- 身份验证：如何确认公钥确实属于声称的拥有者？在没有第三方认证的情况下，两个通信方很难相互验证对方的身份。比如，Alice想要通过Bob的公钥加密信息发送给他，但Alice如何确信这个公钥真的属于Bob，而不是中间人伪装的呢？
+- 信任链：数字证书和CA构建了一个信任链。用户只需要信任CA，就能通过CA来验证证书的真实性，从而信任证书中的公钥属于声明的主体。这个过程减少了用户需要直接管理和验证公钥的复杂性。
+- 撤销和更新：当密钥被泄露或不再安全时，需要有一个机制来撤销密钥。CA可以发布证书撤销列表（CRL，Certificate Revocation List）或通过在线证书状态协议（OCSP，Online Certificate Status Protocol）来通知用户哪些证书不再可信。如果只是端到端直接使用公钥，这种更新和撤销机制难以实现。
+
+### 模拟应用
+
+``` ts
+import { createSign, createVerify } from 'crypto';
+
+// 获取签名
+export function getSign(
+  content: string,
+  privateKey: string,
+  passphrase: string
+) {
+  // 创建签名对象
+  var signObj = createSign('RSA-SHA256');
+  // 放入内容
+  signObj.update(content);
+  // 签名算法
+  return signObj.sign(
+    {
+      key: privateKey,
+      format: 'pem',
+      passphrase,
+    },
+    'hex'
+  );
+}
+
+// 验证签名
+export function verifySign(content: string, sign: string, publicKey: string) {
+  const verifyObj = createVerify('RSA-SHA256');
+  verifyObj.update(content);
+  return verifyObj.verify(publicKey, sign, 'hex');
+}
+```
+
+``` ts
+import { generateKeyPairSync, createHash } from 'crypto';
+import { getSign, verifySign } from '../src/cert';
+
+/**
+ * 实现数字证书的原理
+ */
+export function certTest() {
+  // 服务器生成的公钥和私钥
+  const serverRSA = generateKeyPairSync('rsa', {
+    modulusLength: 1024,
+    publicKeyEncoding: {
+      type: 'spki',
+      format: 'pem', // base64格式的私钥
+    },
+    privateKeyEncoding: {
+      type: 'pkcs8',
+      format: 'pem',
+      cipher: 'aes-256-cbc',
+      passphrase: 'passphrase', // 私钥的密码, 提高窃取成本
+    },
+  });
+
+  // CA 的公钥和私钥
+  const caRSA = generateKeyPairSync('rsa', {
+    modulusLength: 1024,
+    publicKeyEncoding: {
+      type: 'spki',
+      format: 'pem', // base64格式的私钥
+    },
+    privateKeyEncoding: {
+      type: 'pkcs8',
+      format: 'pem',
+      cipher: 'aes-256-cbc',
+      passphrase: 'passphrase', // 私钥的密码, 提高窃取成本
+    },
+  });
+
+  // 网站的信息
+  const info = {
+    domain: 'http://127.0.0.1:8080',
+    publicKey: serverRSA.publicKey,
+  };
+
+  // 把申请信息发给CA机构请求颁发证书
+  // 真正实现的时候，签名的不是info，而是它的hash
+  // 签名算法性能很差，一般不能计算大量的数据
+  const hash = createHash('sha256').update(JSON.stringify(info)).digest('hex'); // hex生成16进制的一个字符串
+
+  // 使用CA的私钥进行签名
+  const sign = getSign(hash, caRSA.privateKey, 'passphrase');
+
+  // 证书
+  const cert = {
+    info,
+    hash,
+    sign, // CA的签名
+  };
+
+  // 验证证书合法性
+  const isValid = verifySign(cert.hash, cert.sign, caRSA.publicKey);
+  console.log('验证证书合法性', isValid);
+
+  // 拿到服务器的公钥 serverPublicKey，可进行加密数据传输
+  const serverPublicKey = cert.info.publicKey;
+}
+```
